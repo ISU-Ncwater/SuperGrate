@@ -69,6 +69,29 @@
         </role>
     </component>
 
+    <!-- Mozilla Firefox -->
+<component context="UserAndSystem" type="Application">
+  <displayName _locID="MigUser.firefox">Mozilla Firefox</displayName>
+  <paths>
+    <path type="File">%CSIDL_APPDATA%\Mozilla\Firefox\</path>
+  </paths>
+  <role role="Settings">
+    <detection>
+      <conditions>
+        <condition>MigXmlHelper.DoesObjectExist("File","%CSIDL_APPDATA%\Mozilla\Firefox\*")</condition>
+      </conditions>
+    </detection>
+    <rules context="User">
+      <include>
+        <objectSet>
+          <pattern type="File">%CSIDL_APPDATA%\Mozilla\Firefox\*.*</pattern>
+        </objectSet>
+      </include>
+    </rules>
+  </role>
+</component>
+
+
     <!-- This component migrates My Download files -->
     <component type="Documents" context="User">
         <displayName _locID="migsgadditional.mydownload">My Download</displayName>
