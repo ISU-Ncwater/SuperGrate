@@ -12,7 +12,8 @@
             </destinationCleanup>
             <detection>
                 <conditions>
-                    <condition>MigXmlHelper.DoesObjectExist("File","%CSIDL_LOCAL_APPDATA%\Google\Chrome\User Data")</condition>
+                    <condition>MigXmlHelper.DoesObjectExist("File","%CSIDL_LOCAL_APPDATA%\Google\Chrome\User
+                        Data")</condition>
                 </conditions>
             </detection>
             <rules context="User">
@@ -23,7 +24,8 @@
                 </include>
                 <exclude>
                     <objectSet>
-                        <pattern type="File">%CSIDL_LOCAL_APPDATA%\Google\Chrome\User Data\*\Cache\* [*]</pattern>
+                        <pattern type="File">%CSIDL_LOCAL_APPDATA%\Google\Chrome\User Data\*\Cache\*
+                            [*]</pattern>
                     </objectSet>
                 </exclude>
                 <merge script="MigXmlHelper.SourcePriority()">
@@ -41,12 +43,14 @@
         <role role="Settings">
             <destinationCleanup>
                 <objectSet>
-                    <pattern type="File">%CSIDL_LOCAL_APPDATA%\Microsoft\Edge\User Data\*\Cache\* [*]</pattern>
+                    <pattern type="File">%CSIDL_LOCAL_APPDATA%\Microsoft\Edge\User Data\*\Cache\*
+                        [*]</pattern>
                 </objectSet>
             </destinationCleanup>
             <detection>
                 <conditions>
-                    <condition>MigXmlHelper.DoesObjectExist("File","%CSIDL_LOCAL_APPDATA%\Microsoft\Edge\User Data")</condition>
+                    <condition>MigXmlHelper.DoesObjectExist("File","%CSIDL_LOCAL_APPDATA%\Microsoft\Edge\User
+                        Data")</condition>
                 </conditions>
             </detection>
             <rules context="User">
@@ -57,7 +61,8 @@
                 </include>
                 <exclude>
                     <objectSet>
-                        <pattern type="File">%CSIDL_LOCAL_APPDATA%\Microsoft\Edge\User Data\*\Cache\* [*]</pattern>
+                        <pattern type="File">%CSIDL_LOCAL_APPDATA%\Microsoft\Edge\User
+                            Data\*\Cache\* [*]</pattern>
                     </objectSet>
                 </exclude>
                 <merge script="MigXmlHelper.SourcePriority()">
@@ -70,27 +75,27 @@
     </component>
 
     <!-- Mozilla Firefox -->
-<component context="UserAndSystem" type="Application">
-  <displayName _locID="MigUser.firefox">Mozilla Firefox</displayName>
-  <paths>
-    <path type="File">%CSIDL_APPDATA%\Mozilla\Firefox\</path>
-  </paths>
-  <role role="Settings">
-    <detection>
-      <conditions>
-        <condition>MigXmlHelper.DoesObjectExist("File","%CSIDL_APPDATA%\Mozilla\Firefox\*")</condition>
-      </conditions>
-    </detection>
-    <rules context="User">
-      <include>
-        <objectSet>
-          <pattern type="File">%CSIDL_APPDATA%\Mozilla\Firefox\*.*</pattern>
-        </objectSet>
-      </include>
-    </rules>
-  </role>
-</component>
-
+    <component context="UserAndSystem" type="Application">
+        <displayName _locID="MigUser.firefox">Mozilla Firefox</displayName>
+        <paths>
+            <path type="File">%CSIDL_APPDATA%\Mozilla\Firefox\</path>
+        </paths>
+        <role role="Settings">
+            <detection>
+                <conditions>
+                    <condition>
+                        MigXmlHelper.DoesObjectExist("File","%CSIDL_APPDATA%\Mozilla\Firefox\*")</condition>
+                </conditions>
+            </detection>
+            <rules context="User">
+                <include>
+                    <objectSet>
+                        <pattern type="File">%CSIDL_APPDATA%\Mozilla\Firefox\*.*</pattern>
+                    </objectSet>
+                </include>
+            </rules>
+        </role>
+    </component>
 
     <!-- This component migrates My Download files -->
     <component type="Documents" context="User">
@@ -118,5 +123,5 @@
             </rules>
         </role>
     </component>
-
+    
 </migration>
