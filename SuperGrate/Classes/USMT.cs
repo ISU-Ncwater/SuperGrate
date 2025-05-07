@@ -1,9 +1,11 @@
 ﻿using SuperGrate.Classes;
+using SuperGrate.Controls;
 using SuperGrate.IO;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
+using System.Security.Cryptography;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
@@ -48,6 +50,17 @@ namespace SuperGrate
                 return null;
             }
         }
+        private static bool UseStoreDirectly
+        {
+            get
+            {
+                if (bool.TryParse(Config.Settings["UseStoreDirectly"], out bool setting))
+                {
+                    return setting;
+                }
+                return false;
+            }
+        }
         /// <summary>
         /// Runs the main USMT / Super Grate logic.
         /// </summary>
@@ -85,7 +98,7 @@ namespace SuperGrate
                     string SID = "";
                     if (Mode == USMTMode.LoadState)
                     {
-                        Failed = !await DownloadFromStore(ID);
+                        if (!UseStoreDirectly) Failed = !await DownloadFromStore(ID);
                         SID = await Misc.GetSIDFromStore(ID);
                         configParams += await BuildLoadStateMUParameter(ID);
                         Logger.Information(Language.Get("Class/USMT/Log/ApplyingUserStateOn", await Misc.GetUserByIdentity(ID), CurrentTarget));
@@ -119,7 +132,8 @@ namespace SuperGrate
                     }
                     if (Mode == USMTMode.ScanState)
                     {
-                        Failed = !await UploadToStore(SID, out string GUID);
+                        Failed = !await CreateStoreEntry(SID, out string GUID);
+                        if (!UseStoreDirectly) Failed = !await UploadToStore(GUID);
                         if (Canceled || Failed) break;
                         UploadedGUIDs.Add(GUID);
                     }
@@ -274,18 +288,11 @@ namespace SuperGrate
                 return parameter;
             });
         }
-        /// <summary>
-        /// Uploads a user from the remote machine to the store.
-        /// </summary>
-        /// <param name="SID">Profile Security ID.</param>
-        /// <param name="GUID">Store GUID.</param>
-        /// <returns>A task with bool, true if success.</returns>
-        private static Task<bool> UploadToStore(string SID, out string GUID)
+        private static Task<bool> CreateStoreEntry(string SID, out string GUID)
         {
             string lGUID = Guid.NewGuid().ToString();
             GUID = lGUID;
             return Task.Run(async () => {
-                Logger.Information(Language.Get("Class/USMT/Log/TransferringUserStateTo", Language.Get("Shared/Store")));
                 string Destination = Path.Combine(Config.Settings["MigrationStorePath"], lGUID);
                 try
                 {
@@ -295,8 +302,32 @@ namespace SuperGrate
                     File.WriteAllText(Path.Combine(Destination, "ntaccount"), await Misc.GetUserByIdentity(SID, CurrentTarget));
                     File.WriteAllText(Path.Combine(Destination, "importedon"), DateTime.Now.ToFileTime().ToString());
                     File.WriteAllText(Path.Combine(Destination, "importedby"), Environment.UserDomainName + "\\" + Environment.UserName);
+                    return true;
+                }
+                catch (Exception e)
+                {
+                    if (Directory.Exists(Destination))
+                    {
+                        Directory.Delete(Destination, true);
+                    }
+                    return false;
+                }
+            });
+        }
+        /// <summary>
+        /// Uploads a user from the remote machine to the store.
+        /// </summary>
+        /// <param name="GUID">Store GUID.</param>
+        /// <returns>A task with bool, true if success.</returns>
+        private static Task<bool> UploadToStore(string GUID)
+        {
+            return Task.Run(async () => {
+                string Destination = Path.Combine(Config.Settings["MigrationStorePath"], GUID);
+                try
+                {
+                    Logger.Information(Language.Get("Class/USMT/Log/TransferringUserStateTo", Language.Get("Shared/Store")));
                     FileOperations.CopyFile(
-                        Path.Combine(Path.Combine(PayloadPathTarget, @"USMT\USMT.MIG")),
+                        Path.Combine(PayloadPathTarget, @"USMT\USMT.MIG"),
                         Path.Combine(Destination, "data")
                     );
                     Logger.Success(Language.Get("Class/USMT/Log/UserStateSuccessfullyTransferred"));
@@ -304,10 +335,6 @@ namespace SuperGrate
                 }
                 catch(Exception e)
                 {
-                    if (Directory.Exists(Destination))
-                    {
-                        Directory.Delete(Destination, true);
-                    }
                     Logger.Exception(e, Language.Get("Class/USMT/Log/Failed/TransferUserStateTo", Language.Get("Shared/Store")));
                     return false;
                 }

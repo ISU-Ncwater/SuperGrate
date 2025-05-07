@@ -145,6 +145,7 @@
 				<ImportedOn>Imported on</ImportedOn>
 				<ExportedBy>Exported by</ExportedBy>
 				<ExportedOn>Exported on</ExportedOn>
+				<ExportedOn>Progress</ExportedOn>
 				<SourceComputer>{Shared/SourceComputer}</SourceComputer>
 				<DestinationComputer>{Shared/DestinationComputer}</DestinationComputer>
 			</Column>
