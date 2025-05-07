@@ -228,7 +228,7 @@ namespace SuperGrate
                         await Task.Delay(1000);
                     }
                 }
-                if(deleted)
+                if (deleted)
                 {
                     Logger.Success(Language.Get("Class/USMT/Log/USMTRemovedSuccessfully"));
                     return true;
