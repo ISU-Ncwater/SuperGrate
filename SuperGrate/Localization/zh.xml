@@ -148,7 +148,7 @@
 				<DestinationComputer>{Shared/DestinationComputer}</DestinationComputer>
 			</Column>
 		</UserList>
-		<USMT>
+		<Migrate>
 			<Log>
 				<ApplyingUserStateOn>正在应用 {0} 的用户状态于 {1}....</ApplyingUserStateOn>
 				<CapturingUserStateOn>正在捕获 {0} 的用户状态于 {1}....</CapturingUserStateOn>
@@ -184,7 +184,7 @@
 					<UnknownError>无法启动 / 完成 USMT，发生未知错误。</UnknownError>
 				</Failed>
 			</Log>
-		</USMT>
+		</Migrate>
 		<WMI>
 			<Log>
 				<Failed>

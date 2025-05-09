@@ -76,11 +76,6 @@ namespace SuperGrate
             miConDelete.Text = Language.Get("Control/Main/Menu/Delete");
             miConProperties.Text = Language.Get("Control/Main/Menu/Properties");
             miConRename.Text = Language.Get("Control/Main/Menu/SetDestinationUserName");
-            /*
-            btnListSource.SetSystemIcon(Properties.Resources.users_ico);
-            btnListStore.SetSystemIcon(Properties.Resources.usercheck);
-            btnDelete.SetSystemIcon(Properties.Resources.x_ico);
-            */
             miAboutSG.SetMenuItemBitmap(Properties.Resources.info_png);
             miNewInstance.SetMenuItemBitmap(Properties.Resources.move_png);
             miAddRemoveCol.SetMenuItemBitmap(Properties.Resources.columns_png);
@@ -183,7 +178,7 @@ namespace SuperGrate
                 if (value)
                 {
                     if (storeRunningTask != RunningTask.None) Logger.Warning(Language.Get("Control/Main/Log/CancelingCurrentTask"));
-                    if (storeRunningTask == RunningTask.USMT) USMT.Cancel();
+                    if (storeRunningTask == RunningTask.USMT) Migrate.Cancel();
                     if (storeRunningTask == RunningTask.RemoteProfileDelete) Misc.CancelRemoteProfileDelete(SourceComputer);
                 }
             }
@@ -273,16 +268,16 @@ namespace SuperGrate
                 bool success;
                 if (CurrentListSource == ListSources.SourceComputer)
                 {
-                    success = await USMT.Do(USMTMode.ScanState, IDs);
+                    success = await Migrate.Start(Migrate.USMTMode.ScanState, IDs);
                     if (bool.TryParse(Config.Settings["AutoDeleteFromSource"], out setting) && setting && success)
                     {
                         await Misc.DeleteFromSource(SourceComputer, IDs);
                     }
-                    IDs = USMT.UploadedGUIDs.ToArray();
+                    IDs = Migrate.UploadedGUIDs.ToArray();
                 }
                 if (tbDestinationComputer.Text != "" && Running == RunningTask.USMT)
                 {
-                    success = await USMT.Do(USMTMode.LoadState, IDs);
+                    success = await Migrate.Start(Migrate.USMTMode.LoadState, IDs);
                     if (bool.TryParse(Config.Settings["AutoDeleteFromStore"], out setting) && setting && success)
                     {
                         await Misc.DeleteFromStore(IDs);

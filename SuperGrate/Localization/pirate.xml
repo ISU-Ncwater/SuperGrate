@@ -148,7 +148,7 @@
 				<DestinationComputer>{Shared/DestinationComputer}</DestinationComputer>
 			</Column>
 		</UserList>
-		<USMT>
+		<Migrate>
 			<Log>
 				<ApplyingUserStateOn>Applyin' user's state {0} on {1}....</ApplyingUserStateOn>
 				<CapturingUserStateOn>Capturin' user's state {0} on {1}....</CapturingUserStateOn>
@@ -184,7 +184,7 @@
 					<UnknownError>Blimey! USMT can't set sail or drop anchor, aye, an unknown tempest be brewin'.</UnknownError>
 				</Failed>
 			</Log>
-		</USMT>
+		</Migrate>
 		<WMI>
 			<Log>
 				<Failed>

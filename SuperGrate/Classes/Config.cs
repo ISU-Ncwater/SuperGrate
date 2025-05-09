@@ -23,7 +23,7 @@ namespace SuperGrate
             {"Class/Config/Comment/MigrationStorePath", string.Empty},
             {"MigrationStorePath", @".\STORE"},
             {"Class/Config/Comment/ScanLoadStateParams", string.Empty},
-            {"ScanStateParameters", "/config:Config_AppsAndSettings.xml /i:MigUser.xml /i:MigSgAdditional.xml /c /r:3 /o"},
+            {"ScanStateParameters", "/config:Config_AppsAndSettings.xml /i:MigUser.xml /i:MigSgAdditional.xml /c /r:3 /vsc /o"},
             {"LoadStateParameters", "/config:Config_AppsAndSettings.xml /i:MigUser.xml /i:MigSgAdditional.xml /c /r:3 /lac /lae"},
             {"Class/Config/Comment/AutoDeleteFromStore", string.Empty},
             {"AutoDeleteFromStore", "false"},

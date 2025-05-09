@@ -148,7 +148,7 @@
 				<DestinationComputer>{Shared/DestinationComputer}</DestinationComputer>
 			</Column>
 		</UserList>
-		<USMT>
+		<Migrate>
 			<Log>
 				<ApplyingUserStateOn>{1} でユーザ状態 {0} を適用しています...</ApplyingUserStateOn>
 				<CapturingUserStateOn>{1} でユーザ状態 {0} をキャプチャしています...</CapturingUserStateOn>
@@ -184,7 +184,7 @@
 					<UnknownError>USMT の起動 / 終了に失敗しました。不明なエラーが発生しました。</UnknownError>
 				</Failed>
 			</Log>
-		</USMT>
+		</Migrate>
 		<WMI>
 			<Log>
 				<Failed>

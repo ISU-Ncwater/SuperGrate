@@ -145,12 +145,12 @@
 				<ImportedOn>Imported on</ImportedOn>
 				<ExportedBy>Exported by</ExportedBy>
 				<ExportedOn>Exported on</ExportedOn>
-				<ExportedOn>Progress</ExportedOn>
+				<Status>Status</Status>
 				<SourceComputer>{Shared/SourceComputer}</SourceComputer>
 				<DestinationComputer>{Shared/DestinationComputer}</DestinationComputer>
 			</Column>
 		</UserList>
-		<USMT>
+		<Migrate>
 			<Log>
 				<ApplyingUserStateOn>Applying user state {0} on {1}....</ApplyingUserStateOn>
 				<CapturingUserStateOn>Capturing user state {0} on {1}....</CapturingUserStateOn>
@@ -168,6 +168,10 @@
 				<DecompressingUSMT>Decompressing USMT...</DecompressingUSMT>
 				<CleaningUpUSMT>Cleaning up USMT...</CleaningUpUSMT>
 				<USMTFinished>USMT Finished.</USMTFinished>
+				<Status>
+					<Running>Running</Running>
+					<Done>Done</Done>
+				</Status>
 				<Failed>
 					<FindUSMTFolderAt>Failed to find USMT folder at {0}.</FindUSMTFolderAt>
 					<StopUSMTOn>Failed to stop USMT on {0}.</StopUSMTOn>
@@ -187,7 +191,7 @@
 					<PayloadPathAlreadyExists>Could not generate a working directory for USMT at: {0}. The folder already exists.</PayloadPathAlreadyExists>
 				</Failed>
 			</Log>
-		</USMT>
+		</Migrate>
 		<WMI>
 			<Log>
 				<Failed>

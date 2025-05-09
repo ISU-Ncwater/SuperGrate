@@ -7,7 +7,7 @@ namespace SuperGrate.Controls.Components
 {
     public class SGProgressBar : ProgressBar
     {
-        private bool DesignMode = false;
+        private new bool DesignMode = false;
         private System.Windows.Controls.ProgressBar ProgressBar = new System.Windows.Controls.ProgressBar();
         public SGProgressBar()
         {

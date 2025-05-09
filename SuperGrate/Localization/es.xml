@@ -148,7 +148,7 @@
 				<DestinationComputer>{Shared/DestinationComputer}</DestinationComputer>
 			</Column>
 		</UserList>
-		<USMT>
+		<Migrate>
 			<Log>
 				<ApplyingUserStateOn>Aplicando estado del usuario {0} en {1}....</ApplyingUserStateOn>
 				<CapturingUserStateOn>Capturando estado del usuario {0} en {1}....</CapturingUserStateOn>
@@ -184,7 +184,7 @@
 					<UnknownError>No se pudo iniciar / finalizar USMT, ocurrió un error desconocido.</UnknownError>
 				</Failed>
 			</Log>
-		</USMT>
+		</Migrate>
 		<WMI>
 			<Log>
 				<Failed>

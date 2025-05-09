@@ -58,7 +58,7 @@ namespace SuperGrate.IO
             int progress = 0;
             foreach (FileInfo file in sourceFiles)
             {
-                if (USMT.Canceled) break;
+                if (Migrate.Canceled) break;
                 string strippedFullPath = file.FullName.Replace(source.FullName, "");
                 string destinationFullPath = Destination + strippedFullPath;
                 string relativeDirectoryPath = file.DirectoryName.Replace(source.FullName, "");
@@ -68,7 +68,7 @@ namespace SuperGrate.IO
                 Logger.Verbose(file.FullName + " => " + destinationFullPath);
                 Logger.UpdateProgress(progress++, sourceFiles.Length);
             }
-            return !USMT.Canceled;
+            return !Migrate.Canceled;
         }
         /// <summary>
         /// Recursively calculates a folders size.

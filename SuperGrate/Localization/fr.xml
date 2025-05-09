@@ -148,7 +148,7 @@
 				<DestinationComputer>{Shared/DestinationComputer}</DestinationComputer>
 			</Column>
 		</UserList>
-		<USMT>
+		<Migrate>
 			<Log>
 				<ApplyingUserStateOn>Application de l'état de l'utilisateur {0} sur {1} en cours...</ApplyingUserStateOn>
 				<CapturingUserStateOn>Capture de l'état de l'utilisateur {0} sur {1} en cours...</CapturingUserStateOn>
@@ -184,7 +184,7 @@
 					<UnknownError>Échec de démarrage / de fin d'USMT, une erreur inconnue s'est produite.</UnknownError>
 				</Failed>
 			</Log>
-		</USMT>
+		</Migrate>
 		<WMI>
 			<Log>
 				<Failed>

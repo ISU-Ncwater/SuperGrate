@@ -265,7 +265,8 @@ namespace SuperGrate
                 { ULColumnType.ImportedBy, "importedby" },
                 { ULColumnType.ImportedOn, "importedon" },
                 { ULColumnType.ExportedBy, "exportedby" },
-                { ULColumnType.ExportedOn, "exportedon" }
+                { ULColumnType.ExportedOn, "exportedon" },
+                { ULColumnType.Status, "status" }
             };
             return Task.Run(() =>
             {
@@ -276,8 +277,8 @@ namespace SuperGrate
                     UserRow row = new UserRow(TemplateRow);
                     DirectoryInfo info = new DirectoryInfo(StoreItemPath);
                     row[ULColumnType.Tag] = info.Name;
-                    string DataFilePath = Path.Combine(StoreItemPath, "data");
-                    if (row.ContainsKey(ULColumnType.Size))
+                    string DataFilePath = Path.Combine(StoreItemPath, @"USMT\USMT.MIG");
+                    if (File.Exists(DataFilePath) && row.ContainsKey(ULColumnType.Size))
                     {
                         row[ULColumnType.Size] = new FileInfo(DataFilePath).Length.ToString();
                     }
