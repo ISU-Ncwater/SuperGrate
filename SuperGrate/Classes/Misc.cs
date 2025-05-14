@@ -265,8 +265,7 @@ namespace SuperGrate
                 { ULColumnType.ImportedBy, "importedby" },
                 { ULColumnType.ImportedOn, "importedon" },
                 { ULColumnType.ExportedBy, "exportedby" },
-                { ULColumnType.ExportedOn, "exportedon" },
-                { ULColumnType.Status, "status" }
+                { ULColumnType.ExportedOn, "exportedon" }
             };
             return Task.Run(() =>
             {
@@ -391,7 +390,8 @@ namespace SuperGrate
                         Logger.Information(Language.Get("Class/Misc/Log/DeletingUserFrom", name, Host));
                         await Remote.StartProcess(
                             Host,
-                            @"C:\ProgramData\SuperGratePD.exe " + SID,
+                            @"C:\ProgramData\SuperGratePD.exe",
+                            SID,
                             @"C:\ProgramData\"
                         );
                         Logger.UpdateProgress((int)((++count - 0.5) / SIDs.Length * 100));

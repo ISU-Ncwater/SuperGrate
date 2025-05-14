@@ -18,8 +18,6 @@ namespace SuperGrate
             {"USMTPathX86", @".\USMT\X86"},
             {"Class/Config/Comment/PayloadPath", string.Empty},
             {"SuperGratePayloadPath", @"C:\SuperGrate"},
-            {"Class/Config/Comment/UseStoreDirectly", string.Empty},
-            {"UseStoreDirectly", "true"},
             {"Class/Config/Comment/MigrationStorePath", string.Empty},
             {"MigrationStorePath", @".\STORE"},
             {"Class/Config/Comment/ScanLoadStateParams", string.Empty},

@@ -1,5 +1,6 @@
 ﻿using SuperGrate.Classes;
 using System;
+using System.Diagnostics;
 using System.Management;
 using System.Threading.Tasks;
 
@@ -14,24 +15,39 @@ namespace SuperGrate
         /// <param name="CLI">The CLI command to run on the remote machine.</param>
         /// <param name="CurrentDirectory">The working directory to use.</param>
         /// <returns>A task with bool. True if success.</returns>
-        public static Task<bool> StartProcess(string Target, string CLI, string CurrentDirectory)
+        public static Task<bool> StartProcess(string Target, string FileName, string Arguments, string CurrentDirectory)
         {
             return Task.Run(() => {
                 try
                 {
-                    ConnectionOptions conOps = new ConnectionOptions
+                    if (Misc.IsHostThisMachine(Target))
                     {
-                        Impersonation = ImpersonationLevel.Impersonate,
-                        Authentication = AuthenticationLevel.Default,
-                        EnablePrivileges = true
-                    };
-                    ManagementScope mScope = new ManagementScope(@"\\" + Target + @"\root\cimv2", conOps);
-                    ManagementPath mPath = new ManagementPath("Win32_Process");
-                    ManagementClass mClass = new ManagementClass(mScope, mPath, null);
-                    ManagementClass startup = new ManagementClass("WIN32_ProcessStartup");
-                    startup["ShowWindow"] = 0;
-                    mClass.InvokeMethod("Create", new object[] { CLI, CurrentDirectory, startup });
-                    return true;
+                        Process.Start(new ProcessStartInfo()
+                        {
+                            FileName = FileName,
+                            Arguments = Arguments,
+                            WorkingDirectory = CurrentDirectory,
+                            UseShellExecute = false,
+                            CreateNoWindow = true
+                        });
+                        return true;
+                    }
+                    else
+                    {
+                        ConnectionOptions conOps = new ConnectionOptions
+                        {
+                            Impersonation = ImpersonationLevel.Impersonate,
+                            Authentication = AuthenticationLevel.Default,
+                            EnablePrivileges = true
+                        };
+                        ManagementScope mScope = new ManagementScope(@"\\" + Target + @"\root\cimv2", conOps);
+                        ManagementPath mPath = new ManagementPath("Win32_Process");
+                        ManagementClass mClass = new ManagementClass(mScope, mPath, null);
+                        ManagementClass startup = new ManagementClass("WIN32_ProcessStartup");
+                        startup["ShowWindow"] = 0;
+                        mClass.InvokeMethod("Create", new object[] { FileName + ' ' + Arguments, CurrentDirectory, startup });
+                        return true;
+                    }
                 }
                 catch(ManagementException e)
                 {
@@ -60,7 +76,7 @@ namespace SuperGrate
         /// <returns></returns>
         public static Task<bool> KillProcess(string Target, string ImageName)
         {
-            return StartProcess(Target, "taskkill.exe /T /F /IM " + ImageName, @"C:\");
+            return StartProcess(Target, "taskkill.exe", "/T /F /IM " + ImageName, @"C:\");
         }
         /// <summary>
         /// Waits for a process to exit on a target host.

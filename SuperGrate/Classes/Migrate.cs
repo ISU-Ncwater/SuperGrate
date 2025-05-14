@@ -23,7 +23,14 @@ namespace SuperGrate
         {
             get
             {
-                return Config.Settings["SuperGratePayloadPath"];
+                if (UseLocalUSMT)
+                {
+                    return USMTPath;
+                }
+                else
+                {
+                    return Config.Settings["SuperGratePayloadPath"];
+                }
             }
         }
         private static string StorePath
@@ -32,29 +39,21 @@ namespace SuperGrate
             {
                 if (UseStoreDirectly)
                 {
-                    string migStorePath = Config.Settings["MigrationStorePath"];
-                    if (migStorePath.StartsWith(@"\\"))
-                    {
-                        return Path.Combine(migStorePath, CurrentGuid);
-                    }
-                    else
-                    {
-                        DirectoryInfo storeDI = new DirectoryInfo(migStorePath);
-                        string localPath = Path.Combine(storeDI.FullName, CurrentGuid);
-                        if (Misc.IsHostThisMachine(CurrentTarget))
-                        {
-                            return localPath;
-                        }
-                        else
-                        {
-                            return Path.Combine(@"\\", Environment.MachineName, localPath.Replace(':', '$'));
-                        }
-                    }
+                    string migStorePath = new DirectoryInfo(Config.Settings["MigrationStorePath"]).FullName;
+                    return Path.Combine(migStorePath, CurrentGuid);
                 }
                 else
                 {
                     return PayloadPathLocal;
                 }
+            }
+        }
+        private static bool UseLocalUSMT 
+        {
+            get
+            {
+                if (USMTPath.StartsWith(@"\\")) return false;
+                return Misc.IsHostThisMachine(CurrentTarget);
             }
         }
         private static string PayloadPathTarget {
@@ -86,11 +85,14 @@ namespace SuperGrate
         {
             get
             {
-                if (bool.TryParse(Config.Settings["UseStoreDirectly"], out bool setting))
+                if (Misc.IsHostThisMachine(CurrentTarget))
                 {
-                    return setting;
+                    return true;
                 }
-                return false;
+                else
+                {
+                    return false;
+                }
             }
         }
         /// <summary>
@@ -145,7 +147,7 @@ namespace SuperGrate
                         Failed = !await CreateStoreEntry(SID, out CurrentGuid);
                     }
                     Failed = !await Remote.StartProcess(CurrentTarget,
-                        Path.Combine(PayloadPathLocal, exec) + " " +
+                        Path.Combine(PayloadPathLocal, exec),
                         StorePath + " " +
                         @"/ue:*\* " +
                         "/ui:" + SID + " " +
@@ -168,7 +170,6 @@ namespace SuperGrate
                     if (Mode == USMTMode.ScanState)
                     {
                         if (!UseStoreDirectly) Failed = !await UploadToStore(CurrentGuid);
-                        Failed = !await UpdateStoreEntryStatus(CurrentGuid, Status.Done);
                         if (Canceled || Failed) break;
                         UploadedGUIDs.Add(CurrentGuid);
                     }
@@ -177,6 +178,7 @@ namespace SuperGrate
                 Failed = !await CleanupUSMT();
                 if (Canceled || Failed)
                 {
+                    await Misc.DeleteFromStore(new string[] { CurrentGuid });
                     return false;
                 }
                 else
@@ -191,6 +193,7 @@ namespace SuperGrate
         /// <returns>A task with bool, true if success.</returns>
         public static Task<bool> CopyUSMT()
         {
+            if (UseLocalUSMT) return Task.FromResult(true);
             return Task.Run(async () => {
                 Logger.Information(Language.Get("Class/Migrate/Log/UploadingUSMTTo", CurrentTarget));
                 try
@@ -253,6 +256,7 @@ namespace SuperGrate
         /// <returns>A task with bool, true if success.</returns>
         public static Task<bool> CleanupUSMT()
         {
+            if (UseLocalUSMT) return Task.FromResult(true);
             return Task.Run(async () => {
                 int tries = 0;
                 bool deleted = false;
@@ -332,7 +336,6 @@ namespace SuperGrate
                 try
                 {
                     Directory.CreateDirectory(Path.Combine(Destination, "USMT"));
-                    await UpdateStoreEntryStatus(CurrentGuid, Status.Running);
                     File.WriteAllText(Path.Combine(Destination, "sid"), SID);
                     File.WriteAllText(Path.Combine(Destination, "source"), await Misc.GetHostNameFromHost(CurrentTarget));
                     File.WriteAllText(Path.Combine(Destination, "ntaccount"), await Misc.GetUserByIdentity(SID, CurrentTarget));
@@ -346,21 +349,6 @@ namespace SuperGrate
                     {
                         Directory.Delete(Destination, true);
                     }
-                    return false;
-                }
-            });
-        }
-        private static Task<bool> UpdateStoreEntryStatus(string GUID, Status Status)
-        {
-            return Task.Run(() => {
-                string Destination = Path.Combine(Config.Settings["MigrationStorePath"], GUID);
-                try
-                {
-                    File.WriteAllText(Path.Combine(Destination, "status"), ((int)Status).ToString());
-                    return true;
-                }
-                catch
-                {
                     return false;
                 }
             });
@@ -575,6 +563,7 @@ namespace SuperGrate
                 }
                 logStream.Close();
                 logFileWatcher.Dispose();
+                File.Delete(logFilePath);
             }
             catch (Exception e)
             {
@@ -588,14 +577,6 @@ namespace SuperGrate
         {
             ScanState = 1,
             LoadState = 2
-        }
-        /// <summary>
-        /// The mode this class is currently operating in.
-        /// </summary>
-        public enum Status
-        {
-            Running = 1,
-            Done = 2
         }
     }
 }

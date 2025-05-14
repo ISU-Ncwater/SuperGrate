@@ -34,7 +34,6 @@
 			<Comment>
 				<USMTPath>The UNC or direct path to the USMT directory. (E.g: .\USMT\X64)</USMTPath>
 				<PayloadPath>Local path on source computer where {Shared/SuperGrate} will run USMT from. (E.g: C:\SuperGrate)</PayloadPath>
-				<UseStoreDirectly>When generating or restoring a MIG file, read and write directly to the store as opposed to copying the MIG file to and from the target computer.</UseStoreDirectly>
 				<MigrationStorePath>The UNC or direct path to the USMT migration store. (E.g: \\ba-share\s$ or .\STORE)</MigrationStorePath>
 				<ScanLoadStateParams>ScanState.exe and LoadState.exe CLI parameters. (See: https://docs.microsoft.com/en-us/windows/deployment/usmt/usmt-command-line-syntax)</ScanLoadStateParams>
 				<AutoDeleteFromStore>Delete the user from the migration store after a restore? (Store to destination)</AutoDeleteFromStore>
@@ -145,7 +144,6 @@
 				<ImportedOn>Imported on</ImportedOn>
 				<ExportedBy>Exported by</ExportedBy>
 				<ExportedOn>Exported on</ExportedOn>
-				<Status>Status</Status>
 				<SourceComputer>{Shared/SourceComputer}</SourceComputer>
 				<DestinationComputer>{Shared/DestinationComputer}</DestinationComputer>
 			</Column>

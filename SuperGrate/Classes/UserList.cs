@@ -29,7 +29,6 @@ namespace SuperGrate.UserList
             { ULColumnType.ImportedOn, Language.Get("Class/UserList/Column/ImportedOn") },
             { ULColumnType.ExportedBy, Language.Get("Class/UserList/Column/ExportedBy") },
             { ULColumnType.ExportedOn, Language.Get("Class/UserList/Column/ExportedOn") },
-            { ULColumnType.Status, Language.Get("Class/UserList/Column/Status") },
             { ULColumnType.Size, Language.Get("Class/UserList/Column/Size") }
         };
         public static void SetColumns(this ListView Owner, UserRow Row)
@@ -144,13 +143,6 @@ namespace SuperGrate.UserList
                     return dblValue.ByteHumanize();
                 }
             }
-            if (ColumnItem.Key == ULColumnType.Status)
-            {
-                if (Enum.TryParse(ColumnItem.Value, out Migrate.Status msValue))
-                {
-                    return msValue.ToString();
-                }
-            }
             if (
                 ColumnItem.Key == ULColumnType.ExportedOn ||
                 ColumnItem.Key == ULColumnType.FirstCreated ||
@@ -202,8 +194,7 @@ namespace SuperGrate.UserList
         FirstCreated = 9,
         ProfilePath = 10,
         SecurityIdentifier = 11,
-        DestinationNTAccount = 12,
-        Status = 13
+        DestinationNTAccount = 12
     }
     public enum ULSortDirection
     {
