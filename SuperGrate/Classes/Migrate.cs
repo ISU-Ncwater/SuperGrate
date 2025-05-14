@@ -40,7 +40,7 @@ namespace SuperGrate
                     }
                     else
                     {
-                        return Path.Combine(@"\\", CurrentTarget, localPath.Replace(':', '$'));
+                        return Path.Combine(@"\\", Environment.MachineName, localPath.Replace(':', '$'));
                     }
                 }
                 else
