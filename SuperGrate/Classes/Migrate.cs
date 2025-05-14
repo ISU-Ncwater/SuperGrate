@@ -31,16 +31,24 @@ namespace SuperGrate
             get
             {
                 if (UseStoreDirectly)
-                { 
-                    DirectoryInfo storeDI = new DirectoryInfo(Config.Settings["MigrationStorePath"]);
-                    string localPath = Path.Combine(storeDI.FullName, CurrentGuid);
-                    if (Misc.IsHostThisMachine(CurrentTarget))
+                {
+                    string migStorePath = Config.Settings["MigrationStorePath"];
+                    if (migStorePath.StartsWith(@"\\"))
                     {
-                        return localPath;
+                        return Path.Combine(migStorePath, CurrentGuid);
                     }
                     else
                     {
-                        return Path.Combine(@"\\", Environment.MachineName, localPath.Replace(':', '$'));
+                        DirectoryInfo storeDI = new DirectoryInfo(migStorePath);
+                        string localPath = Path.Combine(storeDI.FullName, CurrentGuid);
+                        if (Misc.IsHostThisMachine(CurrentTarget))
+                        {
+                            return localPath;
+                        }
+                        else
+                        {
+                            return Path.Combine(@"\\", Environment.MachineName, localPath.Replace(':', '$'));
+                        }
                     }
                 }
                 else
