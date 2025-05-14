@@ -26,6 +26,29 @@ namespace SuperGrate
                 return Config.Settings["SuperGratePayloadPath"];
             }
         }
+        private static string StorePath
+        {
+            get
+            {
+                if (UseStoreDirectly)
+                { 
+                    DirectoryInfo storeDI = new DirectoryInfo(Config.Settings["MigrationStorePath"]);
+                    string localPath = Path.Combine(storeDI.FullName, CurrentGuid);
+                    if (Misc.IsHostThisMachine(CurrentTarget))
+                    {
+                        return localPath;
+                    }
+                    else
+                    {
+                        return Path.Combine(@"\\", CurrentTarget, localPath.Replace(':', '$'));
+                    }
+                }
+                else
+                {
+                    return PayloadPathLocal;
+                }
+            }
+        }
         private static string PayloadPathTarget {
             get
             {
@@ -100,6 +123,7 @@ namespace SuperGrate
                     string SID = "";
                     if (Mode == USMTMode.LoadState)
                     {
+                        CurrentGuid = ID;
                         if (!UseStoreDirectly) Failed = !await DownloadFromStore(ID);
                         SID = await Misc.GetSIDFromStore(ID);
                         configParams += await BuildLoadStateMUParameter(ID);
@@ -114,7 +138,7 @@ namespace SuperGrate
                     }
                     Failed = !await Remote.StartProcess(CurrentTarget,
                         Path.Combine(PayloadPathLocal, exec) + " " +
-                        PayloadPathLocal + " " +
+                        StorePath + " " +
                         @"/ue:*\* " +
                         "/ui:" + SID + " " +
                         "/l:SuperGrate.log " +
