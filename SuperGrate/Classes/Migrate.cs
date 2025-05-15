@@ -187,7 +187,7 @@ namespace SuperGrate
                     }
                     Logger.UpdateProgress(0);
                 }
-                Failed = !await CleanupPayloadPath();
+                await CleanupPayloadPath();
                 if (Canceled || Failed)
                 {
                     if (Mode == USMTMode.ScanState) await Misc.DeleteFromStore(new string[] { CurrentGuid });
