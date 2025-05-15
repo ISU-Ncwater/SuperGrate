@@ -19,18 +19,36 @@ namespace SuperGrate
         private static string CurrentTarget = "";
         private static Misc.OSArchitecture DetectedArch = Misc.OSArchitecture.Unknown;
         private static bool USMTRunning = false;
-        private static string PayloadPathLocal
+        private static string InvocationPathLocal
         {
             get
             {
                 if (UseLocalUSMT)
                 {
-                    return USMTPath;
+                    return SourceUSMTPath;
                 }
                 else
                 {
                     return Config.Settings["SuperGratePayloadPath"];
                 }
+            }
+        }
+        private static string PayloadPathTarget
+        {
+            get
+            {
+                if (Misc.IsHostThisMachine(CurrentTarget))
+                {
+                    return PayloadPathLocal;
+                }
+                return Path.Combine(@"\\", CurrentTarget, PayloadPathLocal.Replace(':', '$'));
+            }
+        }
+        private static string PayloadPathLocal
+        {
+            get
+            {
+                return Config.Settings["SuperGratePayloadPath"];
             }
         }
         private static string StorePath
@@ -44,7 +62,7 @@ namespace SuperGrate
                 }
                 else
                 {
-                    return PayloadPathLocal;
+                    return InvocationPathLocal;
                 }
             }
         }
@@ -52,21 +70,11 @@ namespace SuperGrate
         {
             get
             {
-                if (USMTPath.StartsWith(@"\\")) return false;
+                if (SourceUSMTPath.StartsWith(@"\\")) return false;
                 return Misc.IsHostThisMachine(CurrentTarget);
             }
         }
-        private static string PayloadPathTarget {
-            get
-            {
-                if (Misc.IsHostThisMachine(CurrentTarget))
-                {
-                    return PayloadPathLocal;
-                }
-                return Path.Combine(@"\\", CurrentTarget, PayloadPathLocal.Replace(':', '$'));
-            }
-        }
-        private static string USMTPath
+        private static string SourceUSMTPath
         {
             get
             {
@@ -124,6 +132,10 @@ namespace SuperGrate
             return Task.Run(async () => {
                 DetectedArch = await Misc.GetRemoteArch(CurrentTarget);
                 if (Canceled || DetectedArch == Misc.OSArchitecture.Unknown) return false;
+                Failed = !await DownloadUSMTFromWeb();
+                if (Canceled || Failed) return false;
+                Failed = !await CreatePayloadPath();
+                if (Canceled || Failed) return false;
                 Failed = !await CopyUSMT();
                 if (Canceled || Failed) return false;
                 Logger.UpdateProgress(0);
@@ -147,14 +159,14 @@ namespace SuperGrate
                         Failed = !await CreateStoreEntry(SID, out CurrentGuid);
                     }
                     Failed = !await Remote.StartProcess(CurrentTarget,
-                        Path.Combine(PayloadPathLocal, exec),
-                        StorePath + " " +
+                        Path.Combine(InvocationPathLocal, exec),
+                        '"' + StorePath + "\" " +
                         @"/ue:*\* " +
                         "/ui:" + SID + " " +
-                        "/l:SuperGrate.log " +
-                        "/progress:SuperGrate.progress " +
+                        "/l:\"" + Path.Combine(PayloadPathLocal, "SuperGrate.log") + "\" " +
+                        "/progress:\"" + Path.Combine(PayloadPathLocal, "SuperGrate.progress") + "\" " +
                         configParams
-                    , PayloadPathLocal);
+                    , InvocationPathLocal);
                     if (Canceled || Failed) break;
                     USMTRunning = true;
                     StartWatchLog("SuperGrate.log");
@@ -175,7 +187,7 @@ namespace SuperGrate
                     }
                     Logger.UpdateProgress(0);
                 }
-                Failed = !await CleanupUSMT();
+                Failed = !await CleanupPayloadPath();
                 if (Canceled || Failed)
                 {
                     if (Mode == USMTMode.ScanState) await Misc.DeleteFromStore(new string[] { CurrentGuid });
@@ -198,21 +210,8 @@ namespace SuperGrate
                 Logger.Information(Language.Get("Class/Migrate/Log/UploadingUSMTTo", CurrentTarget));
                 try
                 {
-                    if (!Directory.Exists(USMTPath))
-                    {
-                        Logger.Warning(Language.Get("Class/Migrate/Log/Failed/FindUSMTFolderAt", USMTPath));
-                        if (!await DownloadUSMTFromWeb())
-                        {
-                            return false;
-                        }
-                    }
-                    if (Directory.Exists(PayloadPathTarget))
-                    {
-                        Logger.Error(Language.Get("Class/Migrate/Log/Failed/PayloadPathAlreadyExists", PayloadPathTarget));
-                        return false;
-                    }
                     if (FileOperations.CopyFolder(
-                        USMTPath,
+                        SourceUSMTPath,
                         PayloadPathTarget
                     )) {
                         Logger.Success(Language.Get("Class/Migrate/Log/USMTUploadedSuccessfully"));
@@ -221,7 +220,7 @@ namespace SuperGrate
                     else
                     {
                         Logger.Warning(Language.Get("Class/Migrate/Log/USMTUploadCanceled"));
-                        await CleanupUSMT();
+                        await CleanupPayloadPath();
                         return false;
                     }
                 }
@@ -250,13 +249,36 @@ namespace SuperGrate
                 Logger.Error(Language.Get("Class/Migrate/Log/Failed/StopUSMTOn", CurrentTarget));
             }
         }
+        public static Task<bool> CreatePayloadPath()
+        {
+            return Task.Run(() =>
+            {
+                if (Directory.Exists(PayloadPathTarget))
+                {
+                    Logger.Error(Language.Get("Class/Migrate/Log/Failed/PayloadPathAlreadyExists", PayloadPathTarget));
+                    return false;
+                }
+                else
+                {
+                    try
+                    {
+                        Directory.CreateDirectory(PayloadPathTarget);
+                    }
+                    catch (Exception e)
+                    {
+                        Logger.Exception(e, Language.Get("Class/Migrate/Log/Failed/CreatePayloadPath", PayloadPathTarget));
+                        return false;
+                    }
+                }
+                return true;
+            });
+        }
         /// <summary>
-        /// Cleanup USMT from remote machine.
+        /// Cleanup target temp payload files from remote machine.
         /// </summary>
         /// <returns>A task with bool, true if success.</returns>
-        public static Task<bool> CleanupUSMT()
+        public static Task<bool> CleanupPayloadPath()
         {
-            if (UseLocalUSMT) return Task.FromResult(true);
             return Task.Run(async () => {
                 int tries = 0;
                 bool deleted = false;
@@ -412,16 +434,17 @@ namespace SuperGrate
         /// <returns>A task with bool, true if success.</returns>
         private static Task<bool> DownloadUSMTFromWeb()
         {
+            if (Directory.Exists(SourceUSMTPath)) return Task.FromResult(true);
             return Task.Run(async () => {
                 try
                 {
                     bool success = true;
                     Logger.Information(Language.Get("Class/Migrate/Log/DownloadingUSMTFromTheWeb", DetectedArch.ToString()));
-                    if (!Directory.Exists(USMTPath))
+                    if (!Directory.Exists(SourceUSMTPath))
                     {
-                        Directory.CreateDirectory(USMTPath);
+                        Directory.CreateDirectory(SourceUSMTPath);
                     }
-                    string dlPath = Path.Combine(USMTPath, "USMT.zip");
+                    string dlPath = Path.Combine(SourceUSMTPath, "USMT.zip");
                     if (DetectedArch == Misc.OSArchitecture.X64)
                     {
                         success = await new Download(Constants.USMTx64URL, dlPath).Start();
@@ -437,14 +460,14 @@ namespace SuperGrate
                         throw new Exception(Language.Get("Class/Migrate/Log/Failed/OSArchitectureIsNotSupported", DetectedArch.ToString()));
                     }
                     Logger.Information(Language.Get("Class/Migrate/Log/DecompressingUSMT"));
-                    ZipFile.ExtractToDirectory(dlPath, USMTPath);
+                    ZipFile.ExtractToDirectory(dlPath, SourceUSMTPath);
                     Logger.Information(Language.Get("Class/Migrate/Log/CleaningUpUSMT"));
                     File.Delete(dlPath);
                     return true;
                 }
                 catch (Exception e)
                 {
-                    Directory.Delete(USMTPath, true);
+                    Directory.Delete(SourceUSMTPath, true);
                     Logger.Exception(e, Language.Get("Class/Migrate/Log/Failed/DownloadUSMT"));
                     return false;
                 }
@@ -563,7 +586,6 @@ namespace SuperGrate
                 }
                 logStream.Close();
                 logFileWatcher.Dispose();
-                File.Delete(logFilePath);
             }
             catch (Exception e)
             {

@@ -45,7 +45,7 @@ namespace SuperGrate
                         ManagementClass mClass = new ManagementClass(mScope, mPath, null);
                         ManagementClass startup = new ManagementClass("WIN32_ProcessStartup");
                         startup["ShowWindow"] = 0;
-                        mClass.InvokeMethod("Create", new object[] { FileName + ' ' + Arguments, CurrentDirectory, startup });
+                        mClass.InvokeMethod("Create", new object[] { '"' + FileName + "\" " + Arguments, CurrentDirectory, startup });
                         return true;
                     }
                 }

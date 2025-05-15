@@ -187,6 +187,7 @@
 					<WindowsServerIsNotSupported>Failed to start USMT, Windows Server OS is not supported.</WindowsServerIsNotSupported>
 					<UnknownError>Failed to start / finish USMT, an un-known error has occured.</UnknownError>
 					<PayloadPathAlreadyExists>Could not generate a working directory for USMT at: {0}. The folder already exists.</PayloadPathAlreadyExists>
+					<CreatePayloadPath>Could not create the payload path at: {0}.</CreatePayloadPath>
 				</Failed>
 			</Log>
 		</Migrate>
