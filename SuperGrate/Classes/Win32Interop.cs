@@ -8,7 +8,14 @@ namespace SuperGrate
 {
     static class Win32Interop
     {
-
+        /// <summary>
+        /// Sets Execution State.
+        /// https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-setthreadexecutionstate
+        /// </summary>
+        /// <param name="esFlags">The execution state to set.</param>
+        /// <returns>EXECUTION_STATE</returns>
+        [DllImport("kernel32.dll")]
+        public static extern EXECUTION_STATE SetThreadExecutionState([In] EXECUTION_STATE esFlags);
         /// <summary>
         /// Sets the value of Desktop Window Manager (DWM) non-client rendering attributes for a window.
         /// </summary>
@@ -129,6 +136,18 @@ namespace SuperGrate
             public int Top;
             public int Right;
             public int Bottom;
+        }
+        /// <summary>
+        /// Execution State for SetThreadExecuteState.
+        /// https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-setthreadexecutionstate
+        /// </summary>
+        public enum EXECUTION_STATE
+        {
+            ES_SYSTEM_REQUIRED = 0x00000001,
+            ES_DISPLAY_REQUIRED = 0x00000002,
+            ES_USER_PRESENT = 0x00000004,
+            ES_AWAYMODE_REQUIRED = 0x00000040,
+            ES_CONTINUOUS = 0x80000000
         }
         /// <summary>
         /// The background mode. This parameter can be one of the following values.
