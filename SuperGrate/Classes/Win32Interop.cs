@@ -141,7 +141,7 @@ namespace SuperGrate
         /// Execution State for SetThreadExecuteState.
         /// https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-setthreadexecutionstate
         /// </summary>
-        public enum EXECUTION_STATE
+        public enum EXECUTION_STATE : uint
         {
             ES_SYSTEM_REQUIRED = 0x00000001,
             ES_DISPLAY_REQUIRED = 0x00000002,
