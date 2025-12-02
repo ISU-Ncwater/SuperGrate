@@ -12,6 +12,11 @@ namespace SuperGrate
         [STAThread]
         static void Main(string[] parameters)
         {
+            Win32Interop.SetThreadExecutionState(
+                Win32Interop.EXECUTION_STATE.ES_CONTINUOUS |
+                Win32Interop.EXECUTION_STATE.ES_SYSTEM_REQUIRED |
+                Win32Interop.EXECUTION_STATE.ES_DISPLAY_REQUIRED
+            );
             Config.LoadConfig(parameters);
             Config.LoadLanguage();
             Application.EnableVisualStyles();
